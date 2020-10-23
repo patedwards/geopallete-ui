@@ -67,9 +67,10 @@ function App() {
   
   async function updatePallete() {
     setColors(null)
-    const response = await fetch("http://52.42.44.163:80/geopallete", 
+    const response = await fetch("https://geopallete.herokuapp.com/", 
         {
         method: "POST", 
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           deckViewState,
           bBoxes: featureCollection.features.map(bbox),
