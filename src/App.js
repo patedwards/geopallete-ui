@@ -71,6 +71,7 @@ function App() {
         {
         method: "POST", 
         headers: { 'Content-Type': 'application/json' },
+        mode: "cors",
         body: JSON.stringify({
           deckViewState,
           bBoxes: featureCollection.features.map(bbox),
