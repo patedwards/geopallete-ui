@@ -158,8 +158,7 @@ function App() {
   
   async function updatePallete(k) {
     setColors(null)
-    const response = await fetch("http://0.0.0.0:8000/palettemap", 
-    //const response = await fetch("http://52.10.149.143:8000/palettemap", 
+    const response = await fetch("http://52.10.149.143:8000//geopallete", 
         {
         method: "POST", 
         headers: { 'Access-Control-Allow-Origin': '*' },
