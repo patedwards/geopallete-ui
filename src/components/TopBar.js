@@ -16,7 +16,7 @@ import { BlockPicker, TwitterPicker } from 'react-color';
 import { Card, Button } from '@material-ui/core';
 import { samplePalletes } from '../data/samplePalletes';
 import { NumberSelect } from './NumberSelect';
-
+import CircularProgress from '@material-ui/core/CircularProgress';
 const drawerWidth = 240;
 
 const useStyles = makeStyles((theme) => ({
@@ -52,7 +52,7 @@ function GeneratePallete(props) {
       <ListItem>
         <NumberSelect value={k} setK={setK}/>    
       </ListItem>
-      <Button onClick={() => {props.setMode("generate-pallete"); props.updatePallete(k)}}>Create pallete</Button>
+      <Button onClick={() => {props.setLoading(true); props.setMode("generate-pallete"); props.updatePallete(k)}}>Create pallete</Button>
     </div>
   )
 }
@@ -137,6 +137,7 @@ function BackButton(props) {
 
 export default function ClippedDrawer(props) {
   const classes = useStyles();
+  const [loading, setLoading] = useState(false)
   const styles = {
     rectangle: {
         width: '50px',
@@ -186,10 +187,12 @@ export default function ClippedDrawer(props) {
           <div>
             <Divider />
             <List>
-              <GeneratePallete setMode={props.setMode} updatePallete={props.updatePallete}/>
+              <GeneratePallete setLoading={setLoading} setMode={props.setMode} updatePallete={props.updatePallete}/>
               {(props.colors != null) ?
                 <ColorPallete colors={props.colors}/> :
-                <div/>
+                (loading) ?
+                  <CircularProgress /> :
+                  <div/>
               }
             </List>
           </div> :
