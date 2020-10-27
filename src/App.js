@@ -158,7 +158,7 @@ function App() {
   
   async function updatePallete(k) {
     setColors(null)
-    const response = await fetch("http://52.10.149.143:8000//geopallete", 
+    const response = await fetch("https://palette-map.herokuapp.com/geopallete", 
         {
         method: "POST", 
         headers: { 'Access-Control-Allow-Origin': '*' },
