@@ -19,7 +19,9 @@
     "react-map-gl": "^5.2.9",
     "react-scripts": "3.4.4"
   },
-  "resolutions": {"@turf/difference": "6.0.1"},
+  "resolutions": {
+    "@turf/difference": "6.0.1"
+  },
   "scripts": {
     "preinstall": "npx npm-force-resolutions",
     "start": "react-scripts start",
