@@ -8,11 +8,12 @@ import {WebMercatorViewport} from '@deck.gl/core';
 import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
 import { grey, orange } from '@material-ui/core/colors';
 import uuid from 'uuid';
+import { emptyFeatureCollection } from './utils'
 
 const theme = createMuiTheme({
   typography: {
     h4: {
-      fontFamily: "Architects Daughter"
+      fontFamily: "'Quicksand', sans-serif"
     }
   },
   palette: {
@@ -26,12 +27,6 @@ const theme = createMuiTheme({
 });
 
 
-const emptyFeatureCollection = () => ({
-  type: 'FeatureCollection',
-  features: [
-  ]
-});
-
 const modes = {
   "init": {
     mapMode: ViewMode,
@@ -40,40 +35,43 @@ const modes = {
       library: true
     }
   },
-  "create-pallete": {
+  "create-palette": {
     mapMode: ViewMode,
     panelMode: {
       new: true,
-      edit: true,
+      create: true,
       backButton: true
     }
   },
-  "select-area-for-pallete": {
+  "select-area-for-palette": {
     mapMode: DrawRectangleMode,
     guidanceText: "Click on the map to begin drawing rectangle - click again to finish",
     panelMode: {
       new: true,
+      create: true,
       edit: true,
       backButton: true
     }
   },
-  "adjust-area-for-pallete": {
+  "adjust-area-for-palette": {
     mapMode: ScaleMode,
+    guidanceText: "Click and drag one of the rectangle's corners to resize it",
     panelMode: {
       new: true,
       edit: true,
       backButton: true
     }
   },
-  "slide-area-for-pallete": {
+  "slide-area-for-palette": {
     mapMode: TranslateMode,
+    guidanceText: "Click and drag one of the rectangle's red edges to move it",
     panelMode: {
       new: true,
       edit: true,
       backButton: true
     }
   },
-  "generate-pallete": {
+  "generate-palette": {
     mapMode: ViewMode,
     panelMode: {
       new: true,
@@ -97,21 +95,22 @@ function App() {
   const [selectedFeatureIndexes, setSelectedFeatureIndexes] = useState([])
   const [colors, setColors] = useState(null)
   const [readyToGenerate, setReadyToGenerate] = useState(false)
+  const [loadingPalette, setLoadingPalette] = useState(false)
 
-  function clearPallete() {
+  function handleClearPalette() {
     setFeatureCollection(emptyFeatureCollection());
     setColors(null)
   }
 
   useEffect(() => {
     setMapMode(new mode.mapMode)
-    if (mode == "adjust-area-for-pallete" || mode == "slide-area-for-pallete") {
+    if (mode == "adjust-area-for-palette" || mode == "slide-area-for-palette") {
       setSelectedFeatureIndexes([...featureCollection.features.keys()])
     }
-    if (mode == "create-pallete") {
+    if (mode == "create-palette") {
       setFeatureCollection(emptyFeatureCollection())
     }
-    if (mode == "create-pallete") {
+    if (mode == "create-palette") {
       setFeatureCollection(emptyFeatureCollection())
     }
   }, [mode]);
@@ -130,8 +129,8 @@ function App() {
     setDeckViewState(newDeckViewState)
   }
 
-  function handlePalleteFullView() {
-    console.log(deckViewState)
+  function handlePaletteFullView() {
+    console.log("Full", deckViewState)
     const viewport = new WebMercatorViewport(deckViewState);
     const nw = viewport.unproject([0, 0]);
     const se = viewport.unproject([viewport.width, viewport.height]);
@@ -156,8 +155,9 @@ function App() {
     })
   }
   
-  async function updatePallete(k) {
+  async function updatePalette(k) {
     setColors(null)
+    setLoadingPalette(true)
     const response = await fetch("https://palette-map.herokuapp.com/geopallete", 
         {
         method: "POST", 
@@ -169,6 +169,8 @@ function App() {
       }
     )
     const colorData = await response.json();
+    console.log(response)
+    setLoadingPalette(false)
     setColors(colorData.colors)
   }
 
@@ -179,14 +181,15 @@ function App() {
           position="fixed" 
           readyToGenerate={readyToGenerate}
           setMode={handleUpdateMode} 
-          updatePallete={updatePallete} 
+          updatePalette={updatePalette} 
           colors={colors} 
           setColors={setColors}
-          handlePalleteFullView={handlePalleteFullView}
-          clearPallete={clearPallete}
+          handlePaletteFullView={handlePaletteFullView}
+          handleClearPalette={handleClearPalette}
           updateViewAndFeatures={updateViewAndFeatures}
           mode={mode}
           featureCollection={featureCollection}
+          loadingPalette={loadingPalette}
         />
         <Map 
           setDeckViewState={setDeckViewState} 

@@ -12,11 +12,18 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import InboxIcon from '@material-ui/icons/MoveToInbox';
 import MailIcon from '@material-ui/icons/Mail';
+import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 import { BlockPicker, TwitterPicker } from 'react-color';
 import { Card, Button } from '@material-ui/core';
-import { samplePalletes } from '../data/samplePalletes';
+import { samplePalettes } from '../data/samplePalettes';
 import { NumberSelect } from './NumberSelect';
 import CircularProgress from '@material-ui/core/CircularProgress';
+import { GuidanceText } from './Alert';
+import Fab from '@material-ui/core/Fab';
+import AddIcon from '@material-ui/icons/Add';
+import { GeneratePalette, NewPalette, NewPaletteOptions, EditPaletteOptions, ColorPalette, SamplePalette, BackButton } from './Tasks';
+
+
 const drawerWidth = 240;
 
 const useStyles = makeStyles((theme) => ({
@@ -43,108 +50,11 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 
-// GeneratePallete setMode={props.setMode} updatePallete={updatePallete
-function GeneratePallete(props) {
-  const [k, setK] = useState(5)
-
-  return (
-    <div>
-      <ListItem>
-        <NumberSelect value={k} setK={setK}/>    
-      </ListItem>
-      <Button onClick={() => {props.setLoading(true); props.setMode("generate-pallete"); props.updatePallete(k)}}>Create pallete</Button>
-    </div>
-  )
-}
-  
-
-//<ListItemIcon>{index % 2 === 0 ? <InboxIcon /> : <MailIcon />}</ListItemIcon>
-const NewPalleteItem = props => 
-  <ListItem button onClick={() => {props.clearPallete(); props.setMode("create-pallete")}}>
-    <ListItemText primary={"New pallete"} />
-  </ListItem>
-
-const NewPalleteOptions = props =>
-  <List>
-    {
-      (props.blockAddNewFeature) ?
-        <ListItem disabled>
-          <ListItemText primary={"Generate for whole view"}/>
-        </ListItem> :
-        <ListItem button onClick={
-          () => {
-            props.setMode("generate-pallete");
-            props.handlePalleteFullView()
-          }
-        }>
-          <ListItemText primary={"Generate for whole view"}/>
-        </ListItem>
-    }
-    {
-      (props.blockAddNewFeature) ?
-        <ListItem disabled>
-          <ListItemText primary={"Select area for pallete"}/>
-        </ListItem> :
-        <ListItem button onClick={() => props.setMode("select-area-for-pallete")}>
-          <ListItemText primary={"Select area for pallete"}/>
-        </ListItem>
-    }
-    <ListItem button onClick={() => props.setMode("adjust-area-for-pallete")}>
-      <ListItemText primary={"Adjust area for pallete"}/>
-    </ListItem>
-    <ListItem button onClick={() => props.setMode("slide-area-for-pallete")}>
-      <ListItemText primary={"Move area for pallete"}/>
-    </ListItem>
-  </List>
-
-function ColorPallete(props) {
-  const [color, setColor] = useState(props.colors[0])
-  
-  function handleChangeComplete(color) {
-    setColor(color)
-  }
-  console.log(props);
-  return (
-    <ListItem>
-      <BlockPicker color={color} onChangeComplete={handleChangeComplete} colors={props.colors} triangle={"hide"} width={340}/>  
-    </ListItem>
-  )
-} 
-  
-function SamplePallete(props) {
-  return (
-    <div>
-      <Button onClick={() => {
-        props.updateViewAndFeatures(props.deckViewState, props.featureCollection);
-        props.setColors(props.colors)
-        props.setMode("generate-pallete")
-      }
-      } 
-      >{props.name + " 🛫  🎨"}</Button>
-      <ColorPallete colors={props.colors}/>
-    </div>
-  )
-}
-
-function BackButton(props) {
-  return (
-    <ListItem button onClick={() => {props.setMode("init"); props.clearPallete()}}>
-      <ListItemText primary={"Back to samples"} />
-    </ListItem>
-  )
-}
 
 
-export default function ClippedDrawer(props) {
+export default function TaskBar(props) {
   const classes = useStyles();
-  const [loading, setLoading] = useState(false)
-  const styles = {
-    rectangle: {
-        width: '50px',
-        height: '50px',
-    }
-}
-  console.log("App mode", props.mode)
+  
   return (
     <div className={classes.root}>
       <CssBaseline />
@@ -167,19 +77,26 @@ export default function ClippedDrawer(props) {
           {
             (props.mode.panelMode.backButton) ?
             <div>
-              <BackButton setMode={props.setMode} clearPallete={props.clearPallete}/> 
+              <BackButton setMode={props.setMode} clearPalette={props.handleClearPalette}/> 
               <Divider />
             </div> :
             <div/>
           }
-          <List>
-            <NewPalleteItem clearPallete={props.clearPallete} setMode={props.setMode}/>
-          </List>
+            <NewPalette clearPalette={props.handleClearPalette} setMode={props.setMode}/>
+
           {
-            (props.mode.panelMode.edit) ?
+            (props.mode.panelMode.create) ?
             <div>
               <Divider />
-              <NewPalleteOptions blockAddNewFeature={props.featureCollection.features.length > 0} setMode={props.setMode} handlePalleteFullView={props.handlePalleteFullView}/> 
+              <NewPaletteOptions blockAddNewFeature={props.featureCollection.features.length > 0} setMode={props.setMode} handlePaletteFullView={props.handlePaletteFullView}/> 
+            </div> :
+            <div/>
+          }
+          {
+            (props.mode.panelMode.edit && props.featureCollection.features.length > 0) ?
+            <div>
+              <Divider />
+              <EditPaletteOptions blockAddNewFeature={props.featureCollection.features.length > 0} setMode={props.setMode} handlePaletteFullView={props.handlePaletteFullView}/> 
             </div> :
             <div/>
           }
@@ -187,11 +104,11 @@ export default function ClippedDrawer(props) {
           <div>
             <Divider />
             <List>
-              <GeneratePallete setLoading={setLoading} setMode={props.setMode} updatePallete={props.updatePallete}/>
+              <GeneratePalette setMode={props.setMode} updatePalette={props.updatePalette}/>
               {(props.colors != null) ?
-                <ColorPallete colors={props.colors}/> :
-                (loading) ?
-                  <CircularProgress /> :
+                <ColorPalette colors={props.colors}/> :
+                (props.loadingPalette) ?
+                  <CircularProgress color="secondary" /> :
                   <div/>
               }
             </List>
@@ -202,8 +119,15 @@ export default function ClippedDrawer(props) {
           <div>
             <Divider />
             <List>
-              {samplePalletes.map(p => <SamplePallete setColors={props.setColors} setMode={props.setMode} onClick={() => console.log("HERE")} {...p} updateViewAndFeatures={props.updateViewAndFeatures}/>)}
+              {samplePalettes.map(p => <SamplePalette setColors={props.setColors} setMode={props.setMode} onClick={() => console.log("HERE")} {...p} updateViewAndFeatures={props.updateViewAndFeatures}/>)}
             </List>
+          </div> :
+          <div/>
+          }
+          {( props.mode.guidanceText ) ?
+          <div>
+            <Divider />
+            <GuidanceText text={props.mode.guidanceText}/>
           </div> :
           <div/>
           }
@@ -212,9 +136,3 @@ export default function ClippedDrawer(props) {
     </div>
   );
 }
-
-/*
- <Card style={{backgroundColor: "#86815C"}}>
-        Your card content..
-        </Card>
-*/

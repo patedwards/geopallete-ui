@@ -4,7 +4,7 @@ import TextField from '@material-ui/core/TextField';
 import MenuItem from '@material-ui/core/MenuItem';
 import Input from '@material-ui/core/Input';
 
-const values = [...Array(20).keys()];
+const values = [...Array(21).keys()].filter(f => f > 0);
 
 
 export function NumberSelect(props) {

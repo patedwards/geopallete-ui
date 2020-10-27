@@ -1,4 +1,4 @@
-export const samplePalletes = [
+export const samplePalettes = [
     {
         name: "The Bahamas",
         colors: ["#091322", "#18445B", "#26D3DD", "#354F25", "#1AA3AE", "#04080E", "#78A87C", "#12203D", "#4C682F", "#1A6E83"],
