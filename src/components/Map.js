@@ -4,12 +4,13 @@ import { StaticMap } from "react-map-gl";
 import {GeoJsonLayer} from '@deck.gl/layers';
 import { EditableGeoJsonLayer  } from 'nebula.gl';
 import {WebMercatorViewport} from '@deck.gl/core';
+import uuid from 'uuid'
 
 console.log(process.env)
 const MAPBOX_ACCESS_TOKEN = process.env.REACT_APP_MAPBOX_API_KEY
 
 export function Map(props) {
-  console.log(props)
+  console.log("Map mode", props.mapMode, props.selectedFeatureIndexes)
   const layer = new EditableGeoJsonLayer({
     id: 'geojson-layer',
     data: props.featureCollection,
@@ -17,11 +18,20 @@ export function Map(props) {
     getFillColor: [160, 160, 180, 0],
     getLineColor: [255, 0, 0, 255],
     getLineWidth: 3,
-    selectedFeatureIndexes: props.selectedFeatureIndexes,
+    selectedFeatureIndexes: [0],
     onEdit: ({ updatedData }) => {
       props.setFeatureCollection(updatedData);
     }
   });
+
+  /*
+  Put back in Deck
+  onClick= {({layer, object}) => {
+          if (layer) {
+            console.log("Object min", object)
+          }}
+        }
+  */
 
   return (
     <DeckGL
@@ -35,11 +45,6 @@ export function Map(props) {
         doubleClickZoom: false
       }}
       layers={[layer]}
-      onClick= {({layer, object}) => {
-        if (layer) {
-          console.log("Object min", object)
-        }}
-      }
     >
       <StaticMap 
         mapboxApiAccessToken={MAPBOX_ACCESS_TOKEN} 

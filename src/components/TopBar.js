@@ -13,6 +13,9 @@ import ListItemText from '@material-ui/core/ListItemText';
 import InboxIcon from '@material-ui/icons/MoveToInbox';
 import MailIcon from '@material-ui/icons/Mail';
 import { BlockPicker, TwitterPicker } from 'react-color';
+import { Card, Button } from '@material-ui/core';
+import { samplePalletes } from '../data/samplePalletes';
+import { NumberSelect } from './NumberSelect';
 
 const drawerWidth = 240;
 
@@ -41,25 +44,51 @@ const useStyles = makeStyles((theme) => ({
 
 
 // GeneratePallete setMode={props.setMode} updatePallete={updatePallete
-const GeneratePallete = props => 
-  <ListItem button onClick={() => {props.setMode("generate-pallete"); props.updatePallete()}}>
-    <ListItemText primary={"Generate pallete"} />
-  </ListItem>
+function GeneratePallete(props) {
+  const [k, setK] = useState(5)
+
+  return (
+    <div>
+      <ListItem>
+        <NumberSelect value={k} setK={setK}/>    
+      </ListItem>
+      <Button onClick={() => {props.setMode("generate-pallete"); props.updatePallete(k)}}>Create pallete</Button>
+    </div>
+  )
+}
+  
 
 //<ListItemIcon>{index % 2 === 0 ? <InboxIcon /> : <MailIcon />}</ListItemIcon>
 const NewPalleteItem = props => 
-  <ListItem button onClick={() => props.setMode("create-pallete")}>
+  <ListItem button onClick={() => {props.clearPallete(); props.setMode("create-pallete")}}>
     <ListItemText primary={"New pallete"} />
   </ListItem>
 
 const NewPalleteOptions = props =>
   <List>
-    <ListItem button onClick={() => props.setMode("generate-pallete")}>
-      <ListItemText primary={"Generate for whole view"}/>
-    </ListItem>
-    <ListItem button onClick={() => props.setMode("select-area-for-pallete")}>
-      <ListItemText primary={"Select area for pallete"}/>
-    </ListItem>
+    {
+      (props.blockAddNewFeature) ?
+        <ListItem disabled>
+          <ListItemText primary={"Generate for whole view"}/>
+        </ListItem> :
+        <ListItem button onClick={
+          () => {
+            props.setMode("generate-pallete");
+            props.handlePalleteFullView()
+          }
+        }>
+          <ListItemText primary={"Generate for whole view"}/>
+        </ListItem>
+    }
+    {
+      (props.blockAddNewFeature) ?
+        <ListItem disabled>
+          <ListItemText primary={"Select area for pallete"}/>
+        </ListItem> :
+        <ListItem button onClick={() => props.setMode("select-area-for-pallete")}>
+          <ListItemText primary={"Select area for pallete"}/>
+        </ListItem>
+    }
     <ListItem button onClick={() => props.setMode("adjust-area-for-pallete")}>
       <ListItemText primary={"Adjust area for pallete"}/>
     </ListItem>
@@ -82,18 +111,46 @@ function ColorPallete(props) {
   )
 } 
   
+function SamplePallete(props) {
+  return (
+    <div>
+      <Button onClick={() => {
+        props.updateViewAndFeatures(props.deckViewState, props.featureCollection);
+        props.setColors(props.colors)
+        props.setMode("generate-pallete")
+      }
+      } 
+      >{props.name + " 🛫  🎨"}</Button>
+      <ColorPallete colors={props.colors}/>
+    </div>
+  )
+}
+
+function BackButton(props) {
+  return (
+    <ListItem button onClick={() => {props.setMode("init"); props.clearPallete()}}>
+      <ListItemText primary={"Back to samples"} />
+    </ListItem>
+  )
+}
 
 
 export default function ClippedDrawer(props) {
   const classes = useStyles();
-
+  const styles = {
+    rectangle: {
+        width: '50px',
+        height: '50px',
+    }
+}
+  console.log("App mode", props.mode)
   return (
     <div className={classes.root}>
       <CssBaseline />
       <AppBar position="fixed" className={classes.appBar}>
         <Toolbar>
-          <Typography variant="h6" noWrap>
-            GeoPallete
+          <Typography variant="h4" noWrap>
+            Geopallete
           </Typography>
         </Toolbar>
       </AppBar>
@@ -106,21 +163,55 @@ export default function ClippedDrawer(props) {
       >
         <Toolbar />
         <div className={classes.drawerContainer}>
+          {
+            (props.mode.panelMode.backButton) ?
+            <div>
+              <BackButton setMode={props.setMode} clearPallete={props.clearPallete}/> 
+              <Divider />
+            </div> :
+            <div/>
+          }
           <List>
-            <NewPalleteItem setMode={props.setMode}/>
+            <NewPalleteItem clearPallete={props.clearPallete} setMode={props.setMode}/>
           </List>
-          <Divider />
-          <NewPalleteOptions setMode={props.setMode}/>
-          <Divider />
-          <List>
-            <GeneratePallete setMode={props.setMode} updatePallete={props.updatePallete}/>
-            {(props.colors != null) ?
-              <ColorPallete colors={props.colors}/> :
-              <div/>
-            }
-          </List>
+          {
+            (props.mode.panelMode.edit) ?
+            <div>
+              <Divider />
+              <NewPalleteOptions blockAddNewFeature={props.featureCollection.features.length > 0} setMode={props.setMode} handlePalleteFullView={props.handlePalleteFullView}/> 
+            </div> :
+            <div/>
+          }
+          {( props.mode.generate || props.featureCollection.features.length > 0 ) ?
+          <div>
+            <Divider />
+            <List>
+              <GeneratePallete setMode={props.setMode} updatePallete={props.updatePallete}/>
+              {(props.colors != null) ?
+                <ColorPallete colors={props.colors}/> :
+                <div/>
+              }
+            </List>
+          </div> :
+          <div/>
+          }
+          {( props.mode.panelMode.library ) ?
+          <div>
+            <Divider />
+            <List>
+              {samplePalletes.map(p => <SamplePallete setColors={props.setColors} setMode={props.setMode} onClick={() => console.log("HERE")} {...p} updateViewAndFeatures={props.updateViewAndFeatures}/>)}
+            </List>
+          </div> :
+          <div/>
+          }
         </div>
       </Drawer>
     </div>
   );
 }
+
+/*
+ <Card style={{backgroundColor: "#86815C"}}>
+        Your card content..
+        </Card>
+*/
