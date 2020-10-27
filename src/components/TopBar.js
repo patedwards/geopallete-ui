@@ -150,7 +150,7 @@ export default function ClippedDrawer(props) {
       <AppBar position="fixed" className={classes.appBar}>
         <Toolbar>
           <Typography variant="h4" noWrap>
-            Geopallete
+            palettemap
           </Typography>
         </Toolbar>
       </AppBar>
