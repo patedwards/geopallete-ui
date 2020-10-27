@@ -1,3 +1,5 @@
+Deployed at https://www.palettemap.com/
+
 Next steps:
 - bug fixes:
   - poor performance near the poles due to not handling projections properly
