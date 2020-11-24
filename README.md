@@ -1,4 +1,4 @@
-Deployed at https://www.palettemap.com/
+Deployed at https://www.palettemap.com/, backend repo [here](https://github.com/patedwards/palette_map_api).
 
 Next steps:
 - bug fixes:
